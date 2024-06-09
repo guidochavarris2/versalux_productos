@@ -159,7 +159,7 @@ if ($result->num_rows > 0) {
 // Escribir el archivo de Excel
 $writer = new Xlsx($spreadsheet);
 $excelFilePath = 'productos.xlsx'; // Ruta y nombre del archivo Excel
-$writer->save($excelFilePath);
+//$writer->save($excelFilePath);
 
 // Cerrar conexión a la base de datos
 $conn->close();
