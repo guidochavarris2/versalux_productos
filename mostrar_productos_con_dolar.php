@@ -156,14 +156,7 @@ if ($result->num_rows > 0) {
     }
 }
 
-// Configurar las cabeceras HTTP para la descarga
-header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-header('Content-Disposition: attachment;filename="reporte_productos.xlsx"');
-header('Cache-Control: max-age=0');
 
-// Crear el escritor y enviar el archivo al navegador
-$writer = new Xlsx($spreadsheet);
-$writer->save('php://output');
 
 // Cerrar conexión a la base de datos
 $conn->close();
@@ -398,9 +391,8 @@ $precioCompra = $tipoCambioSunat->precioCompra;
         ?>
     </table>
     <form action="exportar_productos.php" method="post">
-        <label for="precio_dolar">Precio del Dólar:</label>
-        <input type="text" id="precio_dolar" name="precio_dolar" required>
-        <input style="background-color: red" type="submit" value="Exportar a Excel">
+        <input type="hidden" id="precio_dolar" name="precio_dolar" value="<?php echo $precioCompra; ?>">
+        <input style="background-color: red; color: white; cursor: pointer;" type="submit" value="Exportar a Excel">
     </form>
 </body>
 </html>

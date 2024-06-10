@@ -156,7 +156,11 @@ $result = $conn->query($sql);
             </form>
             <br>
             
-            <a  href="mostrar_productos_con_dolar.php"><input style="background-color: blue" type="submit" value="PRODUCTOS EN DOLAR"></a>
+            
+
+            <form action="mostrar_productos_con_dolar.php">
+                <input style="background-color: blue" type="submit" value="Analizar">
+            </form>
         </div>
 
         <div>
