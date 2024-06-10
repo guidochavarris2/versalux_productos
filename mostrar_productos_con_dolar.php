@@ -156,10 +156,14 @@ if ($result->num_rows > 0) {
     }
 }
 
-// Escribir el archivo de Excel
+// Configurar las cabeceras HTTP para la descarga
+header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+header('Content-Disposition: attachment;filename="reporte_productos.xlsx"');
+header('Cache-Control: max-age=0');
+
+// Crear el escritor y enviar el archivo al navegador
 $writer = new Xlsx($spreadsheet);
-$excelFilePath = 'productos.xlsx'; // Ruta y nombre del archivo Excel
-//$writer->save($excelFilePath);
+$writer->save('php://output');
 
 // Cerrar conexión a la base de datos
 $conn->close();
