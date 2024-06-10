@@ -397,10 +397,11 @@ $precioCompra = $tipoCambioSunat->precioCompra;
         $conn->close();
         ?>
     </table>
-    <form action="productos.xlsx">
+    <form action="exportar_productos.php" method="post">
+        <label for="precio_dolar">Precio del Dólar:</label>
+        <input type="text" id="precio_dolar" name="precio_dolar" required>
         <input style="background-color: red" type="submit" value="Exportar a Excel">
     </form>
-    
 </body>
 </html>
 
