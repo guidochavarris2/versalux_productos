@@ -33,8 +33,9 @@ if(isset($_POST['update'])) {
     $descripcion_producto = $_POST['descripcion_producto'];
     $costo_sin_igv = $_POST['costo_sin_igv'];
     $marca = $_POST['marca'];
+    $imagen = $_POST['imagen'];
 
-    $sql = "UPDATE productos SET codigo_producto='$codigo_producto', descripcion_producto='$descripcion_producto', costo_sin_igv='$costo_sin_igv', marca='$marca' WHERE id=$id";
+    $sql = "UPDATE productos SET codigo_producto='$codigo_producto', descripcion_producto='$descripcion_producto', costo_sin_igv='$costo_sin_igv', marca='$marca', imagen='$imagen' WHERE id=$id";
 
     if ($conn->query($sql) === TRUE) {
         echo "Producto actualizado con éxito";
@@ -44,7 +45,7 @@ if(isset($_POST['update'])) {
 }
 
 // Obtener los datos de la base de datos
-$sql = "SELECT id, codigo_producto, descripcion_producto, costo_sin_igv, marca FROM productos";
+$sql = "SELECT id, codigo_producto, descripcion_producto, costo_sin_igv, marca, imagen FROM productos";
 $result = $conn->query($sql);
 
 ?>
@@ -152,6 +153,9 @@ $result = $conn->query($sql);
                 <label for="marca">Marca:</label>
                 <input type="text" id="marca" name="marca" required>
 
+                <label for="imagen">url imagen:</label>
+                <input type="text" id="imagen" name="imagen" required>
+
                 <input type="submit" value="Guardar Producto">
             </form>
             <br>
@@ -168,11 +172,14 @@ $result = $conn->query($sql);
             <table>
                 <tr>
                     <th>ID</th>
+                    <th>foto</th>
                     <th>Código del Producto</th>
                     <th>Descripción del Producto</th>
                     <th>Costo sin IGV</th>
                     <th>Marca</th>
+                    <th>url</th>
                     <th>Acciones</th>
+                    
                 </tr>
                 <?php
                 if ($result->num_rows > 0) {
@@ -181,11 +188,14 @@ $result = $conn->query($sql);
                         echo "<tr>";
                         echo "<form method='post'>";
                         echo "<input type='hidden' name='id' value='" . $row['id'] . "'>";
+                       
                         echo "<td>" . $row["id"] . "</td>";
+                        echo "<td><img  name='imagen'  width='70' height='70' src='" . $row['imagen'] . "'></td>";
                         echo "<td><input type='text' name='codigo_producto' value='" . $row['codigo_producto'] . "'></td>";
                         echo "<td><input type='text' name='descripcion_producto' value='" . $row['descripcion_producto'] . "'></td>";
                         echo "<td><input type='text' name='costo_sin_igv' value='" . $row['costo_sin_igv'] . "'></td>";
                         echo "<td><input type='text' name='marca' value='" . $row['marca'] . "'></td>";
+                        echo "<td><input type='text' name='imagen' value='" . $row['imagen'] . "'></td>";
                         echo "<td class='actions'><input type='submit' name='update' value='Actualizar'> | <a href='?delete=" . $row['id'] . "'>Eliminar</a></td>";
                         echo "</form>";
                         echo "</tr>";

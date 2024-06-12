@@ -18,10 +18,11 @@ $codigo_producto = $_POST['codigo_producto'];
 $descripcion_producto = $_POST['descripcion_producto'];
 $costo_sin_igv = $_POST['costo_sin_igv'];
 $marca = $_POST['marca'];
+$imagen = $_POST['imagen'];
 
 // Insertar los datos en la base de datos
-$sql = "INSERT INTO productos (codigo_producto, descripcion_producto, costo_sin_igv, marca)
-VALUES ('$codigo_producto', '$descripcion_producto', $costo_sin_igv, '$marca')";
+$sql = "INSERT INTO productos (codigo_producto, descripcion_producto, costo_sin_igv, marca, imagen)
+VALUES ('$codigo_producto', '$descripcion_producto', $costo_sin_igv, '$marca','$imagen')";
 
 if ($conn->query($sql) === TRUE) {
     header('Location: mostrar_productos.php');

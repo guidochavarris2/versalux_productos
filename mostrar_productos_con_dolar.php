@@ -21,6 +21,10 @@ $precio_dolar = isset($_POST['precio_dolar']) ? $_POST['precio_dolar'] : 1.00;
 $sql = "SELECT id, codigo_producto, descripcion_producto, costo_sin_igv, marca FROM productos";
 $result = $conn->query($sql);
 
+
+
+
+
 // Función para calcular el monto adicional
 function calcular_monto_adicional($costo) {
     if ($costo >= 0 && $costo <= 49) return 20;
@@ -89,7 +93,10 @@ require 'vendor/autoload.php';
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
-$spreadsheet = new Spreadsheet();
+
+
+
+    $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
 
 // Establecer los encabezados de la tabla en Excel
@@ -97,7 +104,7 @@ $sheet->setCellValue('A1', 'item');
 $sheet->setCellValue('B1', 'Código del Producto');
 $sheet->setCellValue('C1', 'Descripción del Producto');
 $sheet->setCellValue('D1', 'Marca');
-$sheet->setCellValue('E1', 'Costo sin IGV (S/.)');
+$sheet->setCellValue('E1', 'Costo sin IGV dolar ($/.)');
 $sheet->setCellValue('F1', 'Valor del Dólar');
 $sheet->setCellValue('G1', 'Costo del Producto en Soles');
 $sheet->setCellValue('H1', 'Costo IGV');
@@ -158,15 +165,20 @@ if ($result->num_rows > 0) {
 
 
 
-// Cerrar conexión a la base de datos
 $conn->close();
+
+
+
+
+
+// Cerrar conexión a la base de datos
 
 ?>
 
 <?php
 // Datos
 $token = 'apis-token-8889.V12Jb4-L-UD4at4ApsW06t0ZquupcTcz';
-$fecha = '2024-06-09';
+$fecha = '2024-06-11';
 
 // Iniciar llamada a API
 $curl = curl_init();
@@ -194,7 +206,7 @@ curl_close($curl);
 // Datos listos para usar
 $tipoCambioSunat = json_decode($response);
 
-$precioCompra = $tipoCambioSunat->precioCompra;
+$precioCompra = $tipoCambioSunat->precioVenta;
 //echo($precioCompra);
 
 ?>
@@ -296,20 +308,22 @@ $precioCompra = $tipoCambioSunat->precioCompra;
     <h1>Lista de Productos con Precio en Dólares</h1>
     <form method="post" action="">
         <label for="precio_dolar">Precio del Dólar:</label>
-        <input type="number" step="0.01" id="precio_dolar" name="precio_dolar" value="<?php echo $precioCompra; ?>" required>
+        <input type="number" step="0.01" id="precio_dolar" name="precio_dolar" value="<?php  echo $precioCompra; ?>"  required>
         <input type="submit" value="Actualizar">
     </form>
+
+    
 
     <a href="mostrar_productos.php"><input style="background-color: green" type="submit" value="Administrar Productos"></a>
     
     <br>
     <table border="1">
         <tr>
-            <th>item</th>
+            <th>Item</th>
             <th>Código del Producto</th>
             <th>Descripción del Producto</th>
             <th>Marca</th>
-            <th>Costo sin IGV (S/.)</th>
+            <th>Costo sin IGV dolar ($/.)</th>
             <th>valor dolar</th>
             <th>costo producto sin igb en soles</th>
             <th>costo IGV</th>
@@ -320,7 +334,7 @@ $precioCompra = $tipoCambioSunat->precioCompra;
             <th>precio venta inc. IGV</th>
             <th>diferencia IGV</th>
             <th>ganancia subtotal</th>
-            <th>ganancia total restando IGv</th>
+            <th>ganancia total restando IGV</th>
             
         </tr>
         <?php
@@ -392,8 +406,13 @@ $precioCompra = $tipoCambioSunat->precioCompra;
     </table>
     <form action="exportar_productos.php" method="post">
         <input type="hidden" id="precio_dolar" name="precio_dolar" value="<?php echo $precioCompra; ?>">
-        <input style="background-color: red; color: white; cursor: pointer;" type="submit" value="Exportar a Excel">
+        <input style="background-color: red; color: white; cursor: pointer;" name="btnenviar" type="submit" value="Exportar a Excel">
     </form>
+
+    
+    
 </body>
+
+
 </html>
 

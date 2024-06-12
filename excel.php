@@ -1,9 +1,5 @@
 <?php
-// Crear una nueva instancia de PhpSpreadsheet
-require 'vendor/autoload.php';
 
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 // Conexión a la base de datos
 $servername = "btt91cnwqfbklumr7jys-mysql.services.clever-cloud.com";
 $username = "unmow5zflpchxnkp";
@@ -18,21 +14,19 @@ if ($conn->connect_error) {
     die("Conexión fallida: " . $conn->connect_error);
 }
 
-if(isset($_POST['btnenviar'])){
-    $dolar = $_POST['precio_dolar'];
-    
-
-
-// Obtener el precio actual del dólar
+// Obtener el precio actual del dólar (supongamos que viene de un formulario o una API externa)
 $precio_dolar = isset($_POST['precio_dolar']) ? $_POST['precio_dolar'] : 1.00;
 
 // Obtener los datos de la base de datos
 $sql = "SELECT id, codigo_producto, descripcion_producto, costo_sin_igv, marca FROM productos";
 $result = $conn->query($sql);
 
+
+
+
+
 // Función para calcular el monto adicional
 function calcular_monto_adicional($costo) {
-    // Coloca aquí la lógica para calcular el monto adicional
     if ($costo >= 0 && $costo <= 49) return 20;
     if ($costo >= 50 && $costo <= 99) return 25;
     if ($costo >= 100 && $costo <= 149) return 30;
@@ -53,6 +47,7 @@ function calcular_monto_adicional($costo) {
     if ($costo >= 850 && $costo <= 899) return 105;
     if ($costo >= 900 && $costo <= 949) return 110;
     if ($costo >= 950 && $costo <= 999) return 115;
+
     if ($costo >= 1000 && $costo <= 1249) return 125;
     if ($costo >= 1250 && $costo <= 1499) return 150;
     if ($costo >= 1500 && $costo <= 1749) return 175;
@@ -89,10 +84,19 @@ function calcular_monto_adicional($costo) {
     if ($costo >= 9250 && $costo <= 9499) return 950;
     if ($costo >= 9500 && $costo <= 9749) return 975;
     if ($costo >= 9750 && $costo <= 9999) return 1000;
+    // Para otros valores, puedes añadir más condiciones aquí
     return 0; // Por defecto, si no cae en ninguna categoría
 }
+// Crear una nueva instancia de PhpSpreadsheet
+require 'vendor/autoload.php';
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 
+function accion()
+{
+echo("hola");
 
 $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
@@ -102,7 +106,7 @@ $sheet->setCellValue('A1', 'item');
 $sheet->setCellValue('B1', 'Código del Producto');
 $sheet->setCellValue('C1', 'Descripción del Producto');
 $sheet->setCellValue('D1', 'Marca');
-$sheet->setCellValue('E1', 'Costo sin IGV (S/.)');
+$sheet->setCellValue('E1', 'Costo sin IGV dolar ($/.)');
 $sheet->setCellValue('F1', 'Valor del Dólar');
 $sheet->setCellValue('G1', 'Costo del Producto en Soles');
 $sheet->setCellValue('H1', 'Costo IGV');
@@ -111,62 +115,64 @@ $sheet->setCellValue('J1', 'Monto Adicional por Venta');
 $sheet->setCellValue('K1', 'Venta sin IGV');
 $sheet->setCellValue('L1', 'IGV Venta');
 $sheet->setCellValue('M1', 'Precio de Venta Incluido IGV');
-$sheet->setCellValue('N1', 'Diferencia de IGV');
+$sheet->setCellValue('N1', 'Diferencia IGV');
 $sheet->setCellValue('O1', 'Ganancia Subtotal');
-$sheet->setCellValue('P1', 'Ganancia Total');
+$sheet->setCellValue('P1', 'Ganancia Total Restando IGV');
+
+// Obtener los datos de la tabla y escribirlos en Excel
+$rowIndex = 2; // Empieza desde la fila 2 para los datos
 
 if ($result->num_rows > 0) {
-    $rowIndex = 2; // Comenzar en la segunda fila
-    while($row = $result->fetch_assoc()) {
-       // $costo_dolares = $row["costo_sin_igv"] * $precio_dolar;
-        
-
-        $costo_sin_igv = $row["costo_sin_igv"];
-        $costo_dolares = $costo_sin_igv * $precio_dolar;
-        $costoIGV = $costo_dolares * 0.18;
-        $costo_Total_IGV = $costo_dolares + $costoIGV;
+    while ($row = $result->fetch_assoc()) {
+        // Calcular el costo en dólares
+        $costo_dolares = $row["costo_sin_igv"] * $precio_dolar;
+        // Calcular el monto adicional
         $monto_adicional = calcular_monto_adicional($costo_dolares);
-        //$monto_adicional = calcular_monto_adicional($costo_sin_igv);
-        $venta_sin_igv = $costo_dolares + $monto_adicional;
-        $igv_venta = $venta_sin_igv * 0.18;
-        $precio_venta_igv = $venta_sin_igv + $igv_venta;
-        $diferencia_igv = $costoIGV - $igv_venta;
-        $ganancia_total = $venta_sin_igv - $costo_dolares;
-        $ganancia_subtotal = $ganancia_total - $diferencia_igv;
 
-        // Escribir los datos en las celdas
+        
+        // Calcula los demás valores
+        $costoIGV = ($costo_dolares * 0.18);
+        $costo_Total_IGV = $costo_dolares + $costoIGV;
+        $venta_sin_IGV = $costo_dolares + $monto_adicional;
+        $IGV_venta = $venta_sin_IGV * 0.18;
+        $precio_venta_IGV = $venta_sin_IGV + $IGV_venta;
+        $diferenciaIGV = $costoIGV - $IGV_venta;
+        $ganancia_subtotal = $precio_venta_IGV - $costo_Total_IGV;
+        $ganancia_total = $ganancia_subtotal + $diferenciaIGV;
+
+        // Otros cálculos según tus necesidades
+        // ...
+
+        // Asignar los valores de cada fila a las celdas correspondientes
         $sheet->setCellValue('A' . $rowIndex, $row["id"]);
         $sheet->setCellValue('B' . $rowIndex, $row["codigo_producto"]);
         $sheet->setCellValue('C' . $rowIndex, $row["descripcion_producto"]);
         $sheet->setCellValue('D' . $rowIndex, $row["marca"]);
-        $sheet->setCellValue('E' . $rowIndex, number_format($row["costo_sin_igv"], 2));
-        $sheet->setCellValue('F' . $rowIndex, number_format($dolar, 2));
-        $sheet->setCellValue('G' . $rowIndex, number_format($costo_dolares, 2));
-        $sheet->setCellValue('H' . $rowIndex, number_format($costoIGV, 2));
-        $sheet->setCellValue('I' . $rowIndex, number_format($costo_Total_IGV, 2));
-        $sheet->setCellValue('J' . $rowIndex, number_format($monto_adicional, 2));
-        $sheet->setCellValue('K' . $rowIndex, number_format($venta_sin_igv, 2));
-        $sheet->setCellValue('L' . $rowIndex, number_format($igv_venta, 2));
-        $sheet->setCellValue('M' . $rowIndex, number_format($precio_venta_igv, 2));
-        $sheet->setCellValue('N' . $rowIndex, number_format($diferencia_igv, 2));
-        $sheet->setCellValue('O' . $rowIndex, number_format($ganancia_subtotal, 2));
-        $sheet->setCellValue('P' . $rowIndex, number_format($ganancia_total, 2));
-        
+        $sheet->setCellValue('E' . $rowIndex, $row["costo_sin_igv"]);
+        $sheet->setCellValue('F' . $rowIndex, $precio_dolar);
+        $sheet->setCellValue('G' . $rowIndex, $costo_dolares);
+        $sheet->setCellValue('H' . $rowIndex, $costoIGV);
+        $sheet->setCellValue('I' . $rowIndex, $costo_Total_IGV);
+        $sheet->setCellValue('J' . $rowIndex, $monto_adicional);
+        $sheet->setCellValue('K' . $rowIndex, $venta_sin_IGV);
+        $sheet->setCellValue('L' . $rowIndex, $IGV_venta);
+        $sheet->setCellValue('M' . $rowIndex, $precio_venta_IGV);
+        $sheet->setCellValue('N' . $rowIndex, $diferenciaIGV);
+        $sheet->setCellValue('O' . $rowIndex, $ganancia_subtotal);
+        $sheet->setCellValue('P' . $rowIndex, $ganancia_total);
+        // Continúa asignando los valores para las otras columnas según tu lógica
         $rowIndex++;
     }
 }
 
-// Configurar las cabeceras HTTP para la descarga
-header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-header('Content-Disposition: attachment;filename="reporte_productos.xlsx"');
-header('Cache-Control: max-age=0');
 
-// Crear el escritor y enviar el archivo al navegador
-$writer = new Xlsx($spreadsheet);
-$writer->save('php://output');
 
-// Cerrar la conexión a la base de datos
 $conn->close();
 
+
 }
+
+
+// Cerrar conexión a la base de datos
+
 ?>
